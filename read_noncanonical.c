@@ -20,6 +20,9 @@
 #define TRUE 1
 
 #define BUF_SIZE 256
+#define FLAG (0x7E)
+#define ADRESS (0x03)
+#define CONTROL (0x03)
 
 volatile int STOP = FALSE;
 
@@ -90,16 +93,48 @@ int main(int argc, char *argv[])
 
     // Loop for input
     unsigned char buf[BUF_SIZE + 1] = {0}; // +1: Save space for the final '\0' char
-
-    while (STOP == FALSE)
+    enum State {START,FLAG_RCV, A_RCV, C_RCV,BCC_OK,STOP_};
+    enum State state= START;
+    while (state != STOP_)
     {
         // Returns after 5 chars have been input
-        int bytes = read(fd, buf, BUF_SIZE);
-        buf[bytes] = '\0'; // Set end of string to '\0', so we can printf
+        int bytes = read(fd, buf, 1);
 
-        printf(":%s:%d\n", buf, bytes);
-        if (buf[0] == 'z')
-            STOP = TRUE;
+        switch (state)
+        {
+            case START:
+                if(buf[0]== FLAG ) state=FLAG_RCV;
+                break;
+            case FLAG_RCV:
+
+                if(buf[0]== ADRESS ) state=A_RCV;
+                else if(buf[0]==FLAG) break;
+                else state= START;
+                break;
+
+            case A_RCV:
+                if(buf[0]== CONTROL ) state=C_RCV;
+                else if(buf[0]==FLAG) state= FLAG_RCV;
+                else state=START;
+                break;
+            case C_RCV:
+                if(buf[0]== (ADRESS^CONTROL) ) state=BCC_OK;
+                else if(buf[0]==FLAG) state=FLAG_RCV;
+                else state=START;
+                break;
+            case BCC_OK:
+                if(buf[0]==FLAG) state=STOP_;
+                else state=START;
+                break;
+            case STOP_:
+                STOP=TRUE;
+                break;
+            default:
+                break;
+        }
+        printf("Stoped");
+
+
     }
 
     // The while() cycle should be changed in order to respect the specifications

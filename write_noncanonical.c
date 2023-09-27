@@ -90,17 +90,13 @@ int main(int argc, char *argv[])
     printf("New termios structure set\n");
 
     // Create string to send
-    unsigned char buf[BUF_SIZE] = {0};
+    unsigned char buf[5] = {0};
 
-    for (int i = 0; i < BUF_SIZE; i++)
-    {
-        buf[i] = 'a' + i % 26;
-    }
-
-    // In non-canonical mode, '\n' does not end the writing.
-    // Test this condition by placing a '\n' in the middle of the buffer.
-    // The whole buffer must be sent even with the '\n'.
-    buf[5] = '\n';
+    buf[0]=0x7E;
+    buf[1]=0x03;
+    buf[2]=0x03;
+    buf[3]=(0x03^0x03);
+    buf[4]=0x7E;
 
     int bytes = write(fd, buf, BUF_SIZE);
     printf("%d bytes written\n", bytes);
