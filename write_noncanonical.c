@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <termios.h>
 #include <unistd.h>
-
+#include <signal.h>
 // Baudrate settings are defined in <asm/termbits.h>, which is
 // included by <termios.h>
 #define BAUDRATE B38400
@@ -18,13 +18,26 @@
 
 #define FALSE 0
 #define TRUE 1
-
+int alarmEnabled = FALSE;
+int alarmCount = 0;
 #define BUF_SIZE 256
+#define FLAG (0x7E)
+#define ADRESS (0x01)
+#define CONTROL (0x07)
 
 volatile int STOP = FALSE;
+void alarmHandler(int signal)
+{
+    alarmEnabled = FALSE;
+    alarmCount++;
+
+    printf("Alarm #%d\n", alarmCount);
+}
 
 int main(int argc, char *argv[])
 {
+
+    (void)signal(SIGALRM, alarmHandler);
     // Program usage: Uses either COM1 or COM2
     const char *serialPortName = argv[1];
 
@@ -98,8 +111,65 @@ int main(int argc, char *argv[])
     buf[3]=(0x03^0x03);
     buf[4]=0x7E;
 
-    int bytes = write(fd, buf, BUF_SIZE);
-    printf("%d bytes written\n", bytes);
+    unsigned char buf[BUF_SIZE + 1] = {0}; // +1: Save space for the final '\0' char
+    enum State {START,FLAG_RCV, A_RCV, C_RCV,BCC_OK,STOP_};
+    enum State state= START;
+    while (state != STOP_ && alarmCount < 4)
+    {
+          
+        if (alarmEnabled == FALSE)
+        {
+            int bytes = write(fd, buf, BUF_SIZE);
+            printf("%d bytes written\n", bytes);
+            alarm(3); // Set alarm to be triggered in 3s
+            alarmEnabled = TRUE;
+        }
+    
+        // Returns after 5 chars have been input
+        int bytes = read(fd, buf, 1);
+        
+        switch (state)
+        {
+            case START:
+                if(buf[0]== FLAG ) state=FLAG_RCV;
+                break;
+            case FLAG_RCV:
+
+                if(buf[0]== ADRESS ) state=A_RCV;
+                else if(buf[0]==FLAG) break;
+                else state= START;
+                break;
+
+            case A_RCV:
+                if(buf[0]== CONTROL ) state=C_RCV;
+                else if(buf[0]==FLAG) state= FLAG_RCV;
+                else state=START;
+                break;
+            case C_RCV:
+                if(buf[0]== (ADRESS^CONTROL) ) state=BCC_OK;
+                else if(buf[0]==FLAG) state=FLAG_RCV;
+                else state=START;
+                break;
+            case BCC_OK:
+                if(buf[0]==FLAG){ 
+                    state=STOP_;
+                    sleep(0);
+                    }
+                else state=START;
+                break;
+            case STOP_:
+                STOP=TRUE;
+                break;
+            default:
+                break;
+        }
+        
+
+
+    }
+    printf("Stoped");
+
+
 
     // Wait until all bytes have been written to the serial port
     sleep(1);

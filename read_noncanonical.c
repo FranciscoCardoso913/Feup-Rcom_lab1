@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     {
         // Returns after 5 chars have been input
         int bytes = read(fd, buf, 1);
-
+        
         switch (state)
         {
             case START:
@@ -132,11 +132,21 @@ int main(int argc, char *argv[])
             default:
                 break;
         }
-        printf("Stoped");
+        
 
 
     }
+    printf("Stoped");
+    unsigned char buf[5] = {0};
 
+    buf[0]=0x7E;
+    buf[1]=0x01;
+    buf[2]=0x07;
+    buf[3]=(0x01^0x07);
+    buf[4]=0x7E;
+
+    int bytes = write(fd, buf, BUF_SIZE);
+    printf("%d bytes written\n", bytes);
     // The while() cycle should be changed in order to respect the specifications
     // of the protocol indicated in the Lab guide
 
