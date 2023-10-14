@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     }
 
     const char *serialPort = argv[1];
+    printf("%s\n",serialPort);
     const char *role = argv[2];
     const char *filename = argv[3];
 

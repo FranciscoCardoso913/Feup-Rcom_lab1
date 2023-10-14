@@ -1,39 +1,33 @@
 // Link layer protocol implementation
 
 #include "link_layer.h"
-
+#include "utils.h"
 // MISC
 #define _POSIX_SOURCE 1 // POSIX compliant source
 
-int alarmEnabled = FALSE;
-int alarmCount = 0;
-
+extern int alarmEnabled;
+extern int alarmCount;
 volatile int STOP = FALSE;
-void alarmHandler(int signal)
-{
-    alarmEnabled = FALSE;
-    alarmCount++;
-
-    printf("Alarm #%d\n", alarmCount);
-}
 ////////////////////////////////////////////////
 // LLOPEN
 ////////////////////////////////////////////////
 int llopen(LinkLayer connectionParameters)
 {
-    // Create string to send
+    
     int fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY);
     if (fd < 0)
     {
         perror(connectionParameters.serialPort);
-        exit(-1);
+        return -1;
     }
+
+    llconfig(fd);
     unsigned char buf[5] = {0};
 
     unsigned char buf_[BUF_SIZE + 1] = {0}; // +1: Save space for the final '\0' char
     enum State
     {
-        START,
+        START = 0,
         FLAG_RCV,
         A_RCV,
         C_RCV,
@@ -72,15 +66,14 @@ int llopen(LinkLayer connectionParameters)
 
         // Returns after 5 chars have been input
         read(fd, buf_, 1);
-
         switch (state)
         {
         case START:
             if (buf_[0] == FLAG)
                 state = FLAG_RCV;
+                
             break;
         case FLAG_RCV:
-
             if (buf_[0] == adress)
                 state = A_RCV;
             else if (buf_[0] == FLAG)
@@ -123,6 +116,7 @@ int llopen(LinkLayer connectionParameters)
     }
     if (connectionParameters.role == LlRx)
     {
+        printf("Received\n");
         buf[0] = FLAG;
         buf[1] = ADRESS_RECIVER;
         buf[2] = CONTROL_UA;
