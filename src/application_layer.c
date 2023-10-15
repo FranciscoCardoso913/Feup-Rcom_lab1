@@ -6,6 +6,8 @@
 void applicationLayer(const char *serialPort, const char *role, int baudRate,
                       int nTries, int timeout, const char *filename)
 {
+
+    //Configuring link layer
     LinkLayer l;
     l.baudRate=baudRate;
     l.nRetransmissions=nTries;
@@ -13,5 +15,20 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     else l.role=LlRx;
     strcpy(l.serialPort, serialPort);
     l.timeout=timeout;
-    llopen(l);
+
+    while(!llopen(l));
+
+    if(l.role==LlRx) {
+
+        //PREPARING PACKETS
+
+    }
+
+    else {
+
+        //PREPARING PACKETS
+
+    }
+
+    llclose(0);
 }

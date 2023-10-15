@@ -8,13 +8,14 @@
 extern int alarmEnabled;
 extern int alarmCount;
 volatile int STOP = FALSE;
+int fd;
 ////////////////////////////////////////////////
 // LLOPEN
 ////////////////////////////////////////////////
 int llopen(LinkLayer connectionParameters)
 {
     
-    int fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY);
+    fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY);
     if (fd < 0)
     {
         perror(connectionParameters.serialPort);
@@ -34,6 +35,7 @@ int llopen(LinkLayer connectionParameters)
         BCC_OK,
         STOP_
     };
+    
     enum State state = START;
     while (state != STOP_ && alarmCount < 4)
     {
@@ -102,7 +104,7 @@ int llopen(LinkLayer connectionParameters)
             if (buf_[0] == FLAG)
             {
                 state = STOP_;
-                sleep(0);
+                alarm(0);
             }
             else
                 state = START;
@@ -139,7 +141,15 @@ int llopen(LinkLayer connectionParameters)
 ////////////////////////////////////////////////
 int llwrite(const unsigned char *buf, int bufSize)
 {
-    // TODO
+    if(bufSize<=0) return 1;
+
+    int stop=0;
+    alarmCount = 0;
+    
+    while(!stop && alarmCount<4){
+        
+    }
+    
 
     return 0;
 }
@@ -149,7 +159,8 @@ int llwrite(const unsigned char *buf, int bufSize)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
-    // TODO
+    
+    
 
     return 0;
 }
