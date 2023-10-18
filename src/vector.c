@@ -26,14 +26,14 @@ char vector_get(vector *v, int idx) {
 
 }
 
-void vector_set(vector *v, int idx, char item) {
+void vector_set(vector *v,  char c,int idx) {
 
     if (idx >= v->size || idx < 0) {
         printf("Index %d out of bounds for vector of size %d\n", idx, v->size);
         return;
     }
 
-    v->data[idx] = item; 
+    v->data[idx] = c; 
 
 }
 
