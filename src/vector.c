@@ -71,7 +71,7 @@ void vector_remove(vector *v, int idx) {
 
     if (idx >= v->size || idx < 0) {
         printf("Index %d out of bounds for vector of size %d\n", idx, v->size);
-        return -1;
+        return ;
     }
 
     for(int i = idx; i < v->size - 1; i++) {

@@ -1,3 +1,5 @@
+#ifndef _HEADER_H_
+#define _HEADER_H_
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +9,20 @@
 #include <termios.h>
 #include <unistd.h>
 #include <signal.h>
+#include "read.h"
+#include "write.h"
+
+enum State
+    {
+        START = 0,
+        FLAG_RCV,
+        A_RCV,
+        C_RCV,
+        BCC1_OK,
+        D,
+        BCC2_OK,
+        STOP_
+    };
 
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1
@@ -30,3 +46,11 @@
 #define CONTROL_DISC (0x0B)
 #define I0 (0x00)
 #define I1 (0x40)
+#define RR0 (0x05)
+#define RR1 (0x85)
+#define REJ0 (0x01)
+#define REJ1 (0x81)
+#define STUFED_FLAG (0x5e)
+#define STUFED_ESCAPE (0x5d)
+
+#endif 

@@ -2,12 +2,11 @@
 #include "utils.h"
 int alarmEnabled = FALSE;
 int alarmCount = 0;
-
 void alarmHandler(int signal)
 {
     alarmEnabled = FALSE;
     alarmCount++;
-
+    
     printf("Alarm #%d\n", alarmCount);
 }
 
@@ -32,8 +31,8 @@ int llconfig(int fd)
 
     // Set input mode (non-canonical, no echo,...)
     newtio.c_lflag = 0;
-    newtio.c_cc[VTIME] = 0; // Inter-character timer unused
-    newtio.c_cc[VMIN] = 5;  // Blocking read until 5 chars received
+    newtio.c_cc[VTIME] = 30; // Inter-character timer unused
+    newtio.c_cc[VMIN] = 0;  // Blocking read until 5 chars received
 
     // VTIME e VMIN should be changed in order to protect with a
     // timeout the reception of the following character(s)

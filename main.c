@@ -21,12 +21,10 @@ int main(int argc, char *argv[])
         printf("Usage: %s /dev/ttySxx tx|rx filename\n", argv[0]);
         exit(1);
     }
-
     const char *serialPort = argv[1];
     printf("%s\n",serialPort);
     const char *role = argv[2];
     const char *filename = argv[3];
-
     printf("Starting link-layer protocol application\n"
            "  - Serial port: %s\n"
            "  - Role: %s\n"
@@ -40,7 +38,6 @@ int main(int argc, char *argv[])
            N_TRIES,
            TIMEOUT,
            filename);
-
     applicationLayer(serialPort, role, BAUDRATE, N_TRIES, TIMEOUT, filename);
 
     return 0;
