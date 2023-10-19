@@ -1,4 +1,5 @@
 #include "vector.h"
+#include "header.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,7 +30,7 @@ char vector_get(vector *v, int idx) {
 
 }
 
-void vector_set(vector *v,  char c,int idx) {
+void vector_set(vector *v, unsigned char c,int idx) {
 
     if (idx >= v->size || idx < 0) {
         printf("Index %d out of bounds for vector of size %d\n", idx, v->size);
@@ -42,7 +43,7 @@ void vector_set(vector *v,  char c,int idx) {
 
 void vector_set_size(vector *v, int size) {
 
-    char *tmp = (char*) realloc(v->data, size);
+    unsigned char *tmp = (unsigned char*) realloc(v->data, size);
     if (tmp) {
         v->data = tmp;
         v->size = size;
@@ -54,7 +55,7 @@ void vector_set_size(vector *v, int size) {
 
 }
 
-void vector_cpy(vector *v, int size, char* data) {
+void vector_cpy(vector *v, int size, unsigned char* data) {
 
     vector_init(v);
     vector_set_size(v, size);
@@ -62,7 +63,7 @@ void vector_cpy(vector *v, int size, char* data) {
 
 }
 
-void vector_push(vector *v, char c, int idx) {
+void vector_push(vector *v, unsigned char c, int idx) {
 
     vector_set_size(v, v->size + 1);
  
@@ -75,6 +76,33 @@ void vector_push(vector *v, char c, int idx) {
         v->data[i] = v->data[i-1];
     }
     v->data[idx] = c;
+
+}
+
+void vector_stuff(vector *v) {
+
+    int i = 4; //packet size
+
+    while ( i < v->size - 1 ) {
+
+        unsigned char c = v->data[i];
+
+        if (c == FLAG){
+            v->data[i] = 0x7d;
+            vector_set_size(v, v->size+1);
+            vector_push(v, 0x5e, i+1);
+            i++;
+        }
+        else if(c == ESCAPE){
+            v->data[i] = 0x7d;
+            vector_set_size(v, v->size+1);
+            vector_push(v, 0x5d, i+1);
+            i++;
+        }
+
+        i++;
+
+    }
 
 }
 

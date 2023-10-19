@@ -7,7 +7,7 @@ int read_package(int fd, int information_frame,unsigned char * packet){
     unsigned char buf[BUF_SIZE + 1] = {0};
     while(state != STOP_){
         // Returns after 5 chars have been input
-        read(fd, packet, 1);
+        read(fd, buf, 1);
         if(debuf){
             if(buf[0]== STUFED_FLAG) packet[size]=FLAG;
             else if(buf[0] == STUFED_ESCAPE) packet[size]=ESCAPE;
@@ -62,5 +62,7 @@ int read_package(int fd, int information_frame,unsigned char * packet){
             }
     }
     }
-return 1;
+
+    printf("STOPED\n");
+    return size;
 }

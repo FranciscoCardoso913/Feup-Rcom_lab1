@@ -119,7 +119,7 @@ int llopen(LinkLayer connectionParameters)
     {
        write_UA(fd);
     }
-    printf("Stoped");
+    printf("Stoped \n");
 
     // Wait until all bytes have been written to the serial port
     sleep(1);
@@ -134,6 +134,7 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
 {
     if(bufSize<=0) return 1;
 
+    alarmEnabled = FALSE;
     alarmCount = 0;
     
     vector v2;
@@ -148,26 +149,12 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
     vector_push(v,(ADRESS_TRANSMITER ^ I),3);
     
     int packetsize = 4;
-    char BCC2 = 0;
+    unsigned char BCC2 = 0;
 
     while(bufSize>0){
 
         BCC2 ^= *buf;
-        
-        if (*buf == FLAG){
-            vector_push(v,ESCAPE,packetsize++);
-            vector_push(v, 0x5e, packetsize);
-            vector_set_size(v, v->size+1);
-            printf("FLAG\n");
-        }
-        else if(*buf == ESCAPE){
-            vector_push(v, ESCAPE, packetsize++);
-            vector_push(v, 0x5d, packetsize);
-            vector_set_size(v, v->size+1);
-            printf("ESCAPE\n");
-        }
-        else
-            vector_push(v, *buf,packetsize);
+        vector_push(v, *buf,packetsize);
         buf++;
         bufSize--;
         packetsize++;
@@ -175,7 +162,12 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
     }
 
     vector_push(v, BCC2,packetsize);
-    vector_push(v,FLAG,packetsize);
+
+    packetsize++;
+
+    vector_push(v, FLAG,packetsize);
+
+    vector_stuff(v);
 
     while(alarmCount<4){
 
@@ -213,14 +205,20 @@ int llread(unsigned char *packet)
         }
     }
 
+    printf("coninha\n");
+    printf("BCC2: %x\n", bcc2);
+    printf("Packet: %x\n", packet[size]);
+    printf("Size: %d\n", size);
+
     if(bcc2== packet[size +1]){
+        printf("CONAAAAA\n");
         write_rr(fd, information_frame);
         if (information_frame==I0) information_frame=I1;
         else information_frame=I0;
         return size;
     }else{
         write_rej(fd, information_frame);
-        return -1;
+        return size;
     }
 
 }
