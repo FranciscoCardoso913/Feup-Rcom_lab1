@@ -51,7 +51,7 @@ int llopen(LinkLayer connectionParameters)
             buf[4] = FLAG;
             int bytes = write(fd, buf, 5);
             printf("%d bytes written\n", bytes);
-            alarm(1);
+            alarm(3);
             alarmEnabled = TRUE;
         }
         int control = 0;
@@ -117,15 +117,7 @@ int llopen(LinkLayer connectionParameters)
     }
     if (connectionParameters.role == LlRx)
     {
-        printf("Received\n");
-        buf[0] = FLAG;
-        buf[1] = ADRESS_TRANSMITER;
-        buf[2] = CONTROL_UA;
-        buf[3] = (ADRESS_TRANSMITER ^ CONTROL_UA);
-        buf[4] = FLAG;
-
-        int bytes = write(fd, buf, 5);
-        printf("%d bytes written\n", bytes);
+       write_UA(fd);
     }
     printf("Stoped");
 

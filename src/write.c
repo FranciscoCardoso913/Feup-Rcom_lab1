@@ -31,3 +31,16 @@ int write_rr(int fd, unsigned char information_frame){
     printf("%d bytes written\n", bytes);
     return 1;
 }
+int write_UA(int fd){
+        printf("Received\n");
+        unsigned char buf[ 5] = {0};
+        buf[0] = FLAG;
+        buf[1] = ADRESS_TRANSMITER;
+        buf[2] = CONTROL_UA;
+        buf[3] = (ADRESS_TRANSMITER ^ CONTROL_UA);
+        buf[4] = FLAG;
+
+        int bytes = write(fd, buf, 5);
+        printf("%d bytes written\n", bytes);
+        return 0;
+}

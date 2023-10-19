@@ -17,11 +17,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     strcpy(l.serialPort, serialPort);
     l.timeout=timeout;
 
-    while(llopen(l))printf("ola\n");;
+    while(llopen(l));
 
     if(l.role==LlRx) {
-
-        //PREPARING PACKETS
+        unsigned char packet[MAX_PAYLOAD_SIZE];
+        llread(packet);
 
     }
 
