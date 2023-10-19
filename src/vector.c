@@ -1,5 +1,7 @@
-#include "header.h"
-#include "../include/vector.h"
+#include "vector.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 void vector_init(vector *v) {
 
