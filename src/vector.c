@@ -1,5 +1,7 @@
-#include "header.h"
-#include "../include/vector.h"
+#include "vector.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 void vector_init(vector *v) {
 
@@ -26,14 +28,14 @@ char vector_get(vector *v, int idx) {
 
 }
 
-void vector_set(vector *v, int idx, char item) {
+void vector_set(vector* v, char c, int idx) {
 
     if (idx >= v->size || idx < 0) {
         printf("Index %d out of bounds for vector of size %d\n", idx, v->size);
         return;
     }
 
-    v->data[idx] = item; 
+    v->data[idx] = c; 
 
 }
 
@@ -71,7 +73,7 @@ void vector_remove(vector *v, int idx) {
 
     if (idx >= v->size || idx < 0) {
         printf("Index %d out of bounds for vector of size %d\n", idx, v->size);
-        return -1;
+        return;
     }
 
     for(int i = idx; i < v->size - 1; i++) {
