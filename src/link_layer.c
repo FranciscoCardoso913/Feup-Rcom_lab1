@@ -162,17 +162,14 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
     }
 
     vector_push(v, BCC2,packetsize);
-
     packetsize++;
-
-    vector_push(v, FLAG,packetsize);
-
     vector_stuff(v);
-
+    vector_push(v, FLAG,v->size);
     while(alarmCount<4){
 
         if (alarmEnabled == FALSE) {
             int bytes = write(fd, v->data, v->size);
+            
             printf("%d bytes written\n", bytes);
             alarm(3); 
             alarmEnabled = TRUE;
@@ -199,26 +196,17 @@ int llread(unsigned char *packet)
     unsigned char bcc2=0;
     size= size-1;
     for(int i=0; i<size;i++){
-        if(i==0) bcc2= packet[i];
-        else{
-            bcc2 = bcc2 ^packet[i];
-        }
+        bcc2 ^= packet[i];
     }
 
-    printf("coninha\n");
-    printf("BCC2: %x\n", bcc2);
-    printf("Packet: %x\n", packet[size]);
-    printf("Size: %d\n", size);
-
-    if(bcc2== packet[size +1]){
-        printf("CONAAAAA\n");
+    if(bcc2== packet[size ]){
         write_rr(fd, information_frame);
         if (information_frame==I0) information_frame=I1;
         else information_frame=I0;
         return size;
     }else{
         write_rej(fd, information_frame);
-        return size;
+        return -1;
     }
 
 }

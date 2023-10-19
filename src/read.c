@@ -48,14 +48,17 @@ int read_package(int fd, int information_frame,unsigned char * packet){
                     state = START;
                 break;
             case BCC1_OK:
-                if (buf[0] == FLAG)state= STOP_;
-                else
+                if (buf[0] == FLAG){
+                    return size;
+                }
+                else{
                     if(buf[0]==ESCAPE){
                         debuf=TRUE;
                     }else{
                         packet[size]=buf[0];
                         size++;
                     }
+                }
                 break;
             default:
                 break;

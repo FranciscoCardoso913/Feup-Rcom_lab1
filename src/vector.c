@@ -89,13 +89,11 @@ void vector_stuff(vector *v) {
 
         if (c == FLAG){
             v->data[i] = 0x7d;
-            vector_set_size(v, v->size+1);
             vector_push(v, 0x5e, i+1);
             i++;
         }
         else if(c == ESCAPE){
             v->data[i] = 0x7d;
-            vector_set_size(v, v->size+1);
             vector_push(v, 0x5d, i+1);
             i++;
         }
