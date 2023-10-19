@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 void vector_init(vector *v) {
 
@@ -41,7 +42,15 @@ void vector_set(vector *v,  char c,int idx) {
 
 void vector_set_size(vector *v, int size) {
 
-    v->size = size;
+    char *tmp = (char*) realloc(v->data, size);
+    if (tmp) {
+        v->data = tmp;
+        v->size = size;
+    }
+    else {
+        printf("Error reallocating memory!\n");
+        exit(1);
+    }
 
 }
 
@@ -56,13 +65,13 @@ void vector_cpy(vector *v, int size, char* data) {
 void vector_push(vector *v, char c, int idx) {
 
     vector_set_size(v, v->size + 1);
-
+ 
     if (idx > v->size || idx < 0) {
         printf("Index %d out of bounds for vector of size %d\n", idx, v->size);
         return;
     }
 
-    for(int i = v-> size-1; i > idx; i--) {
+    for(int i = v->size - 1; i > idx; i--) {
         v->data[i] = v->data[i-1];
     }
     v->data[idx] = c;

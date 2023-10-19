@@ -144,59 +144,59 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
 
     alarmCount = 0;
     
-    while(alarmCount<4){
-        
-        
-        vector v2;
-        vector *v = &v2;
-        vector_init(v);
-        vector_set_size(v, bufSize+6);
-        vector_push(v, FLAG,0);
-        vector_push(v, ADRESS_TRANSMITER,1);
-        if (I == 0)
-            vector_push(v,I0,2);
-        else
-            vector_push(v,I1,2);
-        vector_push(v,(ADRESS_TRANSMITER ^ I),3);
-        
-        int packetsize = 4;
-        char BCC2 = 0;
+    vector v2;
+    vector *v = &v2;
+    vector_init(v);
+    vector_push(v, FLAG,0);
+    vector_push(v, ADRESS_TRANSMITER,1);
+    if (I == 0)
+        vector_push(v,I0,2);
+    else
+        vector_push(v,I1,2);
+    vector_push(v,(ADRESS_TRANSMITER ^ I),3);
+    
+    int packetsize = 4;
+    char BCC2 = 0;
 
-        while(bufSize>0){
-            BCC2 ^= *buf;
-            
-            if (*buf == FLAG){
-                vector_push(v,ESCAPE,packetsize++);
-                vector_push(v, 0x5e, packetsize);
-                vector_set_size(v, v->size+1);
-            }
-            else if(*buf == ESCAPE){
-                vector_push(v, ESCAPE, packetsize++);
-                vector_push(v, 0x5d, packetsize);
-                vector_set_size(v, v->size+1);
-            }
-            else
-                vector_push(v, *buf,packetsize);
-            buf++;
-            bufSize--;
-            packetsize++;
+    while(bufSize>0){
 
+        BCC2 ^= *buf;
+        
+        if (*buf == FLAG){
+            vector_push(v,ESCAPE,packetsize++);
+            vector_push(v, 0x5e, packetsize);
+            vector_set_size(v, v->size+1);
+            printf("FLAG\n");
         }
+        else if(*buf == ESCAPE){
+            vector_push(v, ESCAPE, packetsize++);
+            vector_push(v, 0x5d, packetsize);
+            vector_set_size(v, v->size+1);
+            printf("ESCAPE\n");
+        }
+        else
+            vector_push(v, *buf,packetsize);
+        buf++;
+        bufSize--;
+        packetsize++;
 
-        vector_push(v, BCC2,packetsize);
-        vector_push(v,FLAG,packetsize);
-        int bytes = write(fd, v->data, v->size);
-        printf("%d bytes written\n", bytes);
-        alarm(3); // Set alarm to be triggered in 3s
-        alarmEnabled = TRUE;
+    }
 
-        write(fd, v->data, v->size);
+    vector_push(v, BCC2,packetsize);
+    vector_push(v,FLAG,packetsize);
 
-        sleep(2); //wait for response 
+    while(alarmCount<4){
+
+        if (alarmEnabled == FALSE) {
+            int bytes = write(fd, v->data, v->size);
+            printf("%d bytes written\n", bytes);
+            alarm(3); 
+            alarmEnabled = TRUE;
+        }      
+
 
         //Get response from Receiver 
 
-        
 
     }
     
