@@ -44,9 +44,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
         //SENDING PACKETS
 
-        int bytes = llwrite(buf, 8, 0);
-
-        printf("%d bytes written\n", bytes);
+        while(llwrite(buf, 8, 0));
 
 
 

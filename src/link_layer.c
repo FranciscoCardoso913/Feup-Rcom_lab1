@@ -137,34 +137,8 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
     alarmEnabled = FALSE;
     alarmCount = 0;
     
-    vector v2;
-    vector *v = &v2;
-    vector_init(v);
-    vector_push(v, FLAG,0);
-    vector_push(v, ADRESS_TRANSMITER,1);
-    if (I == 0)
-        vector_push(v,I0,2);
-    else
-        vector_push(v,I1,2);
-    vector_push(v,(ADRESS_TRANSMITER ^ I),3);
-    
-    int packetsize = 4;
-    unsigned char BCC2 = 0;
+    vector *v = write_i_frame(fd, buf, bufSize, I);
 
-    while(bufSize>0){
-
-        BCC2 ^= *buf;
-        vector_push(v, *buf,packetsize);
-        buf++;
-        bufSize--;
-        packetsize++;
-
-    }
-
-    vector_push(v, BCC2,packetsize);
-    packetsize++;
-    vector_stuff(v);
-    vector_push(v, FLAG,v->size);
     while(alarmCount<4){
 
         if (alarmEnabled == FALSE) {
@@ -174,15 +148,17 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
             alarm(3); 
             alarmEnabled = TRUE;
         }      
-
-
-        //Get response from Receiver 
+        if(!read_s_u_frame(fd, information_frame)){
+            if(information_frame==I0) information_frame=I1;
+            else information_frame=I0;
+            return 0;
+        }
 
 
     }
     
 
-    return 0;
+    return 1;
 }
 
 ////////////////////////////////////////////////

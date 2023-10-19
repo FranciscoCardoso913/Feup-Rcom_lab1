@@ -50,7 +50,7 @@ enum State
 #define RR1 (0x85)
 #define REJ0 (0x01)
 #define REJ1 (0x81)
-#define STUFED_FLAG (0x5e)
-#define STUFED_ESCAPE (0x5d)
+#define STUFFED_FLAG (0x5e)
+#define STUFFED_ESCAPE (0x5d)
 
 #endif 

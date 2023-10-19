@@ -9,8 +9,8 @@ int read_package(int fd, int information_frame,unsigned char * packet){
         // Returns after 5 chars have been input
         read(fd, buf, 1);
         if(debuf){
-            if(buf[0]== STUFED_FLAG) packet[size]=FLAG;
-            else if(buf[0] == STUFED_ESCAPE) packet[size]=ESCAPE;
+            if(buf[0]== STUFFED_FLAG) packet[size]=FLAG;
+            else if(buf[0] == STUFFED_ESCAPE) packet[size]=ESCAPE;
             else continue;
             size++;
             debuf=FALSE;
@@ -68,4 +68,81 @@ int read_package(int fd, int information_frame,unsigned char * packet){
 
     printf("STOPED\n");
     return size;
+}
+
+int read_s_u_frame(int fd,int information_frame){
+    unsigned char res=0;
+    enum State state = START;
+    unsigned char buf[BUF_SIZE + 1] = {0};
+    while(state != STOP_){
+        // Returns after 5 chars have been input
+        read(fd, buf, 1);
+        switch (state)
+        {
+        case START:
+            if (buf[0] == FLAG)
+                state = FLAG_RCV;
+                
+            break;
+        case FLAG_RCV:
+        printf("Adress\n");
+            if (buf[0] == ADRESS_TRANSMITER)
+                state = A_RCV;
+            else if (buf[0] == FLAG)
+                break;
+            else
+                state = START;
+            break;
+
+        case A_RCV:
+        printf("C\n");
+            if(buf[0]==RR0){
+                if(information_frame==I1){
+                    state= C_RCV;
+                    res=RR0;
+                }
+                else{
+                    printf("ERROR\n");
+                    return -1;
+                }
+            }else if( buf[0]==RR1){
+                if(information_frame==I0){
+                    state= C_RCV;
+                    res=RR1;
+                }
+                else{
+                    printf("ERROR\n");
+                    return -1;
+                }
+
+            }else if(buf[0]==REJ0 || buf[0]==REJ1){
+                return -1;
+            }else{
+                state=START;
+            }
+            break;
+        case C_RCV:
+        printf("bcc1\n");
+            if (buf[0] == (ADRESS_TRANSMITER ^ res))
+                state = BCC1_OK;
+            else if (buf[0] == FLAG)
+                state = FLAG_RCV;
+            else
+                state = START;
+            break;
+        case BCC1_OK:
+        printf("flag\n");
+            if (buf[0] == FLAG){
+                return 0;
+            }
+            else{
+               state=START;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return 0;
+
 }
