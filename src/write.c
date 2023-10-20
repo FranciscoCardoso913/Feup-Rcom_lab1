@@ -80,3 +80,19 @@ vector* write_i_frame(int fd, const unsigned char *buf, int bufSize, unsigned ch
     
     return v;
 }
+
+vector* write_disc(int fd) {
+
+    vector v2; 
+    vector *v = &v2;
+
+    vector_init(v);
+    vector_push(v, FLAG,0);
+    vector_push(v, ADRESS_TRANSMITER,1);
+    vector_push(v, CONTROL_DISC,2);
+    vector_push(v, (ADRESS_TRANSMITER ^ CONTROL_DISC),3);
+    vector_push(v, FLAG,4);
+
+    return v;
+
+}

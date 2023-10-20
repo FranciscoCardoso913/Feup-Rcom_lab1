@@ -193,9 +193,44 @@ int llread(unsigned char *packet)
 ////////////////////////////////////////////////
 // LLCLOSE
 ////////////////////////////////////////////////
-int llclose(int showStatistics)
+int llclose(int showStatistics, LinkLayer connectionParameters)
 {
-    // TODO
+    
+    if (connectionParameters.role == LlTx) {
+        alarmEnabled = FALSE;
+        alarmCount = 0;
+
+        while(alarmCount<4){
+
+            if (alarmEnabled == FALSE) {
+                vector *v = write_disc(fd);
+                int bytes = write(fd, v->data, v->size);
+                
+                printf("%d bytes sent\n", bytes); 
+                alarmEnabled = TRUE;
+            }     
+ 
+            if(read_disc(fd)){
+                write_UA(fd);
+                printf("Closed successfuly\n");
+                return 0;
+            }
+        }
+
+    }
+
+    else {
+
+        while(read_disc(fd));
+        do {
+            printf("write disc\n");
+            write_disc(fd);
+        } while(read_UA(fd)) ;
+        printf("Closed successfuly\n");
+        return 0;
+    
+    }
+
 
     return 1;
 }

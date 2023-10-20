@@ -153,3 +153,121 @@ int read_s_u_frame(int fd,int information_frame){
     return 1;
 
 }
+
+int read_disc(int fd){
+    alarm(3);
+    alarmEnabled=TRUE;
+    enum State state = START;
+    unsigned char buf[BUF_SIZE + 1] = {0};
+    while(state != STOP_ && alarmEnabled){
+        // Returns after 5 chars have been input
+        read(fd, buf, 1);
+        switch (state)
+        {
+        case START:
+            if (buf[0] == FLAG)
+                state = FLAG_RCV;
+                
+            break;
+        case FLAG_RCV:
+      
+            if (buf[0] == ADRESS_TRANSMITER)
+                state = A_RCV;
+            else if (buf[0] == FLAG)
+                break;
+            else
+                state = START;
+            break;
+
+        case A_RCV:
+            if (buf[0] == (CONTROL_DISC))
+                state = C_RCV;
+            else if (buf[0] == FLAG)
+                state = FLAG_RCV;
+            else
+                state = START;
+
+            break;
+        case C_RCV:
+   
+            if (buf[0] == (ADRESS_TRANSMITER ^ CONTROL_DISC))
+                state = BCC1_OK;
+            else if (buf[0] == FLAG)
+                state = FLAG_RCV;
+            else
+                state = START;
+            break;
+        case BCC1_OK:
+   
+            if (buf[0] == FLAG){
+                alarm(0);
+                return 0;
+            }
+            else{
+               state=START;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return 1;
+
+}
+
+int read_UA(int fd){
+    enum State state = START;
+    unsigned char buf[BUF_SIZE + 1] = {0};
+    while(state != STOP_ ){
+        // Returns after 5 chars have been input
+        read(fd, buf, 1);
+        switch (state)
+        {
+        case START:
+            if (buf[0] == FLAG)
+                state = FLAG_RCV;
+                
+            break;
+        case FLAG_RCV:
+      
+            if (buf[0] == ADRESS_TRANSMITER)
+                state = A_RCV;
+            else if (buf[0] == FLAG)
+                break;
+            else
+                state = START;
+            break;
+
+        case A_RCV:
+            if (buf[0] == (CONTROL_UA))
+                state = C_RCV;
+            else if (buf[0] == FLAG)
+                state = FLAG_RCV;
+            else
+                state = START;
+
+            break;
+        case C_RCV:
+   
+            if (buf[0] == (ADRESS_TRANSMITER ^ CONTROL_UA))
+                state = BCC1_OK;
+            else if (buf[0] == FLAG)
+                state = FLAG_RCV;
+            else
+                state = START;
+            break;
+        case BCC1_OK:
+   
+            if (buf[0] == FLAG){
+                return 0;
+            }
+            else{
+               state=START;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return 1;
+}
