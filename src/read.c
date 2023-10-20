@@ -1,5 +1,5 @@
 #include "read.h"
-
+extern int alarmEnabled;
 int read_package(int fd, int information_frame,unsigned char * packet){
     int size=0;
     int debuf= FALSE;
@@ -18,11 +18,13 @@ int read_package(int fd, int information_frame,unsigned char * packet){
             switch (state)
             {
             case START:
+                
                 if (buf[0] == FLAG)
                     state = FLAG_RCV;
                     
                 break;
             case FLAG_RCV:
+   
                 if (buf[0] == ADRESS_TRANSMITER)
                     state = A_RCV;
                 else if (buf[0] == FLAG)
@@ -32,6 +34,7 @@ int read_package(int fd, int information_frame,unsigned char * packet){
                 break;
 
             case A_RCV:
+
                 if (buf[0] == information_frame)
                     state = C_RCV;
                 else if (buf[0] == FLAG)
@@ -40,6 +43,7 @@ int read_package(int fd, int information_frame,unsigned char * packet){
                     state = START;
                 break;
             case C_RCV:
+   
                 if (buf[0] == (ADRESS_TRANSMITER ^ information_frame))
                     state = BCC1_OK;
                 else if (buf[0] == FLAG)
@@ -48,7 +52,9 @@ int read_package(int fd, int information_frame,unsigned char * packet){
                     state = START;
                 break;
             case BCC1_OK:
+    
                 if (buf[0] == FLAG){
+                    printf("Stoped\n");
                     return size;
                 }
                 else{
@@ -71,10 +77,11 @@ int read_package(int fd, int information_frame,unsigned char * packet){
 }
 
 int read_s_u_frame(int fd,int information_frame){
+    alarm(3);
     unsigned char res=0;
     enum State state = START;
     unsigned char buf[BUF_SIZE + 1] = {0};
-    while(state != STOP_){
+    while(state != STOP_ && alarmEnabled){
         // Returns after 5 chars have been input
         read(fd, buf, 1);
         switch (state)
@@ -85,7 +92,7 @@ int read_s_u_frame(int fd,int information_frame){
                 
             break;
         case FLAG_RCV:
-        printf("Adress\n");
+      
             if (buf[0] == ADRESS_TRANSMITER)
                 state = A_RCV;
             else if (buf[0] == FLAG)
@@ -95,7 +102,7 @@ int read_s_u_frame(int fd,int information_frame){
             break;
 
         case A_RCV:
-        printf("C\n");
+
             if(buf[0]==RR0){
                 if(information_frame==I1){
                     state= C_RCV;
@@ -122,7 +129,7 @@ int read_s_u_frame(int fd,int information_frame){
             }
             break;
         case C_RCV:
-        printf("bcc1\n");
+   
             if (buf[0] == (ADRESS_TRANSMITER ^ res))
                 state = BCC1_OK;
             else if (buf[0] == FLAG)
@@ -131,7 +138,7 @@ int read_s_u_frame(int fd,int information_frame){
                 state = START;
             break;
         case BCC1_OK:
-        printf("flag\n");
+   
             if (buf[0] == FLAG){
                 return 0;
             }
@@ -143,6 +150,6 @@ int read_s_u_frame(int fd,int information_frame){
             break;
         }
     }
-    return 0;
+    return 1;
 
 }

@@ -133,22 +133,23 @@ int llopen(LinkLayer connectionParameters)
 int llwrite(const unsigned char *buf, int bufSize, int I)
 {
     if(bufSize<=0) return 1;
-
+    printf("I : %X\n",information_frame);
     alarmEnabled = FALSE;
     alarmCount = 0;
     
-    vector *v = write_i_frame(fd, buf, bufSize, I);
+    
 
     while(alarmCount<4){
 
         if (alarmEnabled == FALSE) {
+            vector *v = write_i_frame(fd, buf, bufSize, information_frame);
             int bytes = write(fd, v->data, v->size);
             
-            printf("%d bytes written\n", bytes);
-            alarm(3); 
+            printf("%d bytes sent\n", bytes); 
             alarmEnabled = TRUE;
         }      
         if(!read_s_u_frame(fd, information_frame)){
+            printf("Accepetd\n");
             if(information_frame==I0) information_frame=I1;
             else information_frame=I0;
             return 0;
@@ -166,7 +167,7 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
-
+    printf("I : %X\n",information_frame);
     int size= read_package(fd, information_frame,packet);
     if(size<0) return -1;
     unsigned char bcc2=0;
@@ -176,11 +177,13 @@ int llread(unsigned char *packet)
     }
 
     if(bcc2== packet[size ]){
+        printf("Accepetd\n");
         write_rr(fd, information_frame);
         if (information_frame==I0) information_frame=I1;
         else information_frame=I0;
         return size;
     }else{
+        printf("Rejected\n");
         write_rej(fd, information_frame);
         return -1;
     }
