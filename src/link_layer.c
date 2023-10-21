@@ -31,7 +31,6 @@ int llopen(LinkLayer connectionParameters)
     
         llconfig(fd);
     }
-    unsigned char buf[5] = {0};
 
     unsigned char buf_[BUF_SIZE + 1] = {0}; // +1: Save space for the final '\0' char
     
@@ -44,13 +43,8 @@ int llopen(LinkLayer connectionParameters)
 
         if (alarmEnabled == FALSE && connectionParameters.role == LlTx)
         {
-            buf[0] = FLAG;
-            buf[1] = ADRESS_TRANSMITER;
-            buf[2] = CONTROL_SET;
-            buf[3] = (ADRESS_TRANSMITER ^ CONTROL_SET);
-            buf[4] = FLAG;
-            int bytes = write(fd, buf, 5);
-            printf("%d bytes written\n", bytes);
+            
+            write_set(fd);
             alarm(3);
             alarmEnabled = TRUE;
         }
@@ -141,9 +135,7 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
     while(alarmCount<4){
 
         if (alarmEnabled == FALSE || res==-1) {
-            vector *v = write_i_frame(fd, buf, bufSize, information_frame);
-            int bytes = write(fd, v->data, v->size);
-            printf("%d bytes sent\n", bytes); 
+            write_i_frame(fd, buf, bufSize, information_frame); 
             alarmEnabled = TRUE;
         }    
         res  = read_s_u_frame(fd, information_frame);
@@ -213,10 +205,7 @@ int llclose(int showStatistics, LinkLayer connectionParameters)
         while(alarmCount<4){
 
             if (alarmEnabled == FALSE) {
-                vector *v = write_disc(fd);
-                int bytes = write(fd, v->data, v->size);
-                
-                printf("%d bytes sent\n", bytes); 
+                write_disc(fd);
                 alarmEnabled = TRUE;
             }     
  
