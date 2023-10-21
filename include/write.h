@@ -3,11 +3,14 @@
 #include "header.h"
 #include "vector.h"
 
-int write_package(int fd,unsigned char * package);
 int write_UA(int fd);
 vector* write_i_frame(int fd, const unsigned char *buf, int bufSize, unsigned char information_frame);
 int write_rej(int fd,unsigned char information_frame);
 int write_rr(int fd, unsigned char information_frame);
 vector* write_disc(int fd);
+vector* write_control(unsigned char control, const char *filename, long filezise);
+vector* write_data(unsigned char *buf, int bufSize);
+
+
 
 #endif 

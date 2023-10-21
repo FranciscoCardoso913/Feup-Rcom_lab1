@@ -1,22 +1,21 @@
 // Application layer protocol implementation
 
 #include "application_layer.h"
-#include "link_layer.h"
 
 
 void applicationLayer(const char *serialPort, const char *role, int baudRate,
                       int nTries, int timeout, const char *filename)
 {
     //Configuring link layer
-
     LinkLayer l;
     l.baudRate=baudRate;
     l.nRetransmissions=nTries;
-
     if(role[0]=='t') l.role=LlTx;
     else l.role=LlRx;
     strcpy(l.serialPort, serialPort);
     l.timeout=timeout;
+    
+    
     while(llopen(l));
     sleep(2);
     if(l.role==LlRx) {
@@ -25,49 +24,50 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             printf("Error: Unable to create or open the file %s for writing.\n", filename);
             return;
         }
-        size_t t=10968;
-        unsigned char packet[MAX_PAYLOAD_SIZE+1];
+        
+        long t=0;
+
+        unsigned char packet[MAX_PAYLOAD_SIZE+5];
+        do{
+            llread(packet);
+        }while(packet[0]!= 0x02);
+        if(packet[1]==0x00){
+            t=0;
+            unsigned char n_bytes = packet[2];
+            int c=0;
+            for(int i= n_bytes; i>0;i--){
+                t+= pow_int(256,i-1)*(int)packet[c+3];
+                c++;
+            }
+
+        }
         int size=-1;
-        while(t>(size_t)0){
+        while(packet[0]!=0x03){
             while(size==-1){
-                printf("Reading again\n");
                 size = llread(packet);
-                /*for(int i = 0; i < size; i++) {
-                    printf("%x\n ", packet[i]);
-                }*/
                 printf("%d\n ", size);
             }
             if(size>0){
-                printf("Finished reading\n");
-                size_t bytesWrittenNow = fwrite(packet, 1, size, file);
+                size_t bytesWrittenNow = fwrite(packet+3, 1, size-3, file);
                 if(bytesWrittenNow==(size_t)0) break;
-                t= t- bytesWrittenNow;
+                t -= bytesWrittenNow;
             }
             size=-1;
             printf("Bytes left %ld\n",t);
             if(t==(size_t)0) break;
         
         }
+        llread(packet);
+        if(t>(long)0){ 
+            printf("Error: Data was lost! %d bytes were lost\n", t);
+            exit(1);
+            }
         printf("Finished\n");
         fclose(file);
     }
 
     else {
 
-        //PREPARING PACKETS
-        /*unsigned char buf[BUF_SIZE + 1] = {0}; // +1: Save space for the final '\0' char
-        buf[0]=0x7e;
-        buf[1]=0x7d;
-        buf[2]=0xbb;
-        buf[3]=0xaa;
-        buf[4]=0x7f;
-        buf[5]=0xac;
-        buf[6]=0x45;
-        buf[7]=0x05;
-
-        //SENDING PACKETS
-
-        while(llwrite(buf, 8, 0));*/
         FILE *file = fopen(filename, "rb");
         if (file == NULL) {
             printf("Error: Unable to open the file %s for reading.\n", filename);
@@ -78,8 +78,13 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         long fileLength = ftell(file);
         fseek(file, 0, SEEK_SET);
         printf("lenght: %ld\n",fileLength);
+
         unsigned char buffer[MAX_PAYLOAD_SIZE];
         size_t bytes_to_Read=MAX_PAYLOAD_SIZE;
+        
+        vector *v_open = write_control( 0x02, filename, fileLength);
+        llwrite(v_open->data, v_open->size,0);
+
         while(fileLength>0){
             printf("Writting again\n");
             int bytesRead = fread(buffer, 1, (fileLength >= bytes_to_Read) ? bytes_to_Read : fileLength, file);
@@ -87,18 +92,22 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                 printf("Error reading the file.\n");
                 break;
             }
+           
             fileLength -= bytesRead;
-            if(llwrite(buffer, bytesRead,0)){
+            vector * v = write_data(buffer,bytesRead);
+            printf("BytesREad: %d \n", bytesRead);
+            if(llwrite(v->data, v->size,0)){
                 printf("timed exeded\n");
                 return ;
             }
         }
+
+        vector *v_close = write_control( 0x03, filename, fileLength);
+        llwrite(v_close->data, v_close->size,0);
+
         printf("Finished\n");
         
         fclose(file);
-
-
-
 
     }
   

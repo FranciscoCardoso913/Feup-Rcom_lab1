@@ -137,18 +137,18 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
     alarmEnabled = FALSE;
     alarmCount = 0;
     
-    
-
+    int res=0;
     while(alarmCount<4){
 
-        if (alarmEnabled == FALSE) {
+        if (alarmEnabled == FALSE || res==-1) {
             vector *v = write_i_frame(fd, buf, bufSize, information_frame);
             int bytes = write(fd, v->data, v->size);
             
             printf("%d bytes sent\n", bytes); 
             alarmEnabled = TRUE;
-        }      
-        if(!read_s_u_frame(fd, information_frame)){
+        }    
+        res  = read_s_u_frame(fd, information_frame);
+        if(res==0){
             printf("Accepetd\n");
             if(information_frame==I0) information_frame=I1;
             else information_frame=I0;
@@ -174,7 +174,7 @@ int llread(unsigned char *packet)
     for(int i=0; i<size;i++){
         bcc2 ^= packet[i];
     }
-    printf("Size %d", size);
+    printf("Size %d \n", size);
     if(bcc2== packet[size ]){
         printf("Accepetd\n");
         if(size==-1){

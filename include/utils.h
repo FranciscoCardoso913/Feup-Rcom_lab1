@@ -3,5 +3,6 @@
 
 void alarmHandler(int signal);
 int llconfig(int fd);
+long pow_int(int x, int y);
 
 #endif 

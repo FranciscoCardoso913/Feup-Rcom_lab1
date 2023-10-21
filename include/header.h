@@ -52,5 +52,10 @@ enum State
 #define REJ1 (0x81)
 #define STUFFED_FLAG (0x5e)
 #define STUFFED_ESCAPE (0x5d)
+#define C_DATA (0x01)
+#define C_START (0x02)
+#define C_END (0x03)
+#define T_SIZE (0x00)
+#define T_NAME (0x01)
 
 #endif 

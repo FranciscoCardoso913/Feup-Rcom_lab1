@@ -54,3 +54,14 @@ int llconfig(int fd)
     printf("New termios structure set\n");
     return 0;
 }
+
+long pow_int(int x, int y) {
+
+
+    long result = 1;
+    for (int i = 0; i < y; i++) {
+        result *= x;
+    }
+    return result;
+
+}
