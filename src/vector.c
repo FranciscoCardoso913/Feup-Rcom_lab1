@@ -83,7 +83,7 @@ void vector_stuff(vector *v) {
 
     int i = 4; //packet size
 
-    while ( i < v->size - 1 ) {
+    while ( i < v->size  ) {
 
         unsigned char c = v->data[i];
 

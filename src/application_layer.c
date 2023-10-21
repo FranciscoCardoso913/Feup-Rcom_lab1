@@ -59,7 +59,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         }
         llread(packet);
         if(t>(long)0){ 
-            printf("Error: Data was lost! %d bytes were lost\n", t);
+            printf("Error: Data was lost! %ld bytes were lost\n", t);
             exit(1);
             }
         printf("Finished\n");

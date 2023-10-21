@@ -143,7 +143,6 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
         if (alarmEnabled == FALSE || res==-1) {
             vector *v = write_i_frame(fd, buf, bufSize, information_frame);
             int bytes = write(fd, v->data, v->size);
-            
             printf("%d bytes sent\n", bytes); 
             alarmEnabled = TRUE;
         }    
@@ -188,9 +187,9 @@ int llread(unsigned char *packet)
             return size;
         }
     }else{
-         printf("packet %X", packet[size+1]);
-         printf("packet %X", packet[size]);
-         printf("packet %X", bcc2);
+         printf("packet %X\n", packet[size+1]);
+         printf("packet %X\n", packet[size]);
+         printf("packet %X\n", bcc2);
 
         sleep(3);
         
