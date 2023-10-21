@@ -1,6 +1,7 @@
 #include "read.h"
 extern int alarmEnabled;
 int read_package(int fd, int information_frame,unsigned char * packet){
+    unsigned char read_i;
     int size=0;
     int debuf= FALSE;
     enum State state = START;
@@ -35,8 +36,10 @@ int read_package(int fd, int information_frame,unsigned char * packet){
 
             case A_RCV:
 
-                if (buf[0] == information_frame)
+                if (buf[0] == I0 || buf[0]==I1){
                     state = C_RCV;
+                    read_i= buf[0];
+                }
                 else if (buf[0] == FLAG)
                     state = FLAG_RCV;
                 else
@@ -55,7 +58,8 @@ int read_package(int fd, int information_frame,unsigned char * packet){
     
                 if (buf[0] == FLAG){
                     printf("Stoped\n");
-                    return size;
+                    state=STOP_;
+                    break;
                 }
                 else{
                     if(buf[0]==ESCAPE){
@@ -73,6 +77,7 @@ int read_package(int fd, int information_frame,unsigned char * packet){
     }
 
     printf("STOPED\n");
+    if(information_frame!=read_i) return -1;
     return size;
 }
 

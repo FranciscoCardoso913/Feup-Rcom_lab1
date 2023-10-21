@@ -169,20 +169,31 @@ int llread(unsigned char *packet)
 {
     printf("I : %X\n",information_frame);
     int size= read_package(fd, information_frame,packet);
-    if(size<0) return -1;
     unsigned char bcc2=0;
     size= size-1;
     for(int i=0; i<size;i++){
         bcc2 ^= packet[i];
     }
-
+    printf("Size %d", size);
     if(bcc2== packet[size ]){
         printf("Accepetd\n");
-        write_rr(fd, information_frame);
-        if (information_frame==I0) information_frame=I1;
-        else information_frame=I0;
-        return size;
+        if(size==-1){
+            if(information_frame==I0)write_rr(fd, I1);
+            else write_rr(fd, I0);
+            return -1;
+        }else{
+            write_rr(fd, information_frame);
+            if (information_frame==I0) information_frame=I1;
+            else information_frame=I0;
+            return size;
+        }
     }else{
+         printf("packet %X", packet[size+1]);
+         printf("packet %X", packet[size]);
+         printf("packet %X", bcc2);
+
+        sleep(3);
+        
         printf("Rejected\n");
         write_rej(fd, information_frame);
         return -1;
