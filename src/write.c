@@ -44,15 +44,16 @@ int write_rr(int fd, unsigned char information_frame){
 
 }
 
-int write_UA(int fd){
+int write_s_u_d(int fd, unsigned char control) {
 
     vector v2;
     vector *v = &v2;
+
     vector_init(v);
     vector_push(v, FLAG,0);
     vector_push(v, ADRESS_TRANSMITER,1);
-    vector_push(v, CONTROL_UA,2);
-    vector_push(v, (ADRESS_TRANSMITER ^ CONTROL_UA),3);
+    vector_push(v, control,2);
+    vector_push(v, (ADRESS_TRANSMITER ^ control),3);
     vector_push(v, FLAG,4);
 
     int bytes = write(fd, v->data, v->size);
@@ -93,44 +94,6 @@ int write_i_frame(int fd, const unsigned char *buf, int bufSize, unsigned char i
     vector_stuff(v);
     vector_push(v, FLAG,v->size);
     
-    int bytes = write(fd, v->data, v->size);
-    printf("%d bytes written\n", bytes);
-
-    return 1;
-
-}
-
-int write_disc(int fd) {
-
-    vector v2; 
-    vector *v = &v2;
-
-    vector_init(v);
-    vector_push(v, FLAG,0);
-    vector_push(v, ADRESS_TRANSMITER,1);
-    vector_push(v, CONTROL_DISC,2);
-    vector_push(v, (ADRESS_TRANSMITER ^ CONTROL_DISC),3);
-    vector_push(v, FLAG,4);
-
-    int bytes = write(fd, v->data, v->size);
-    printf("%d bytes written\n", bytes);
-
-    return 1;
-
-}
-
-int write_set(int fd) {
-
-    vector v2;
-    vector *v = &v2;
-
-    vector_init(v);
-    vector_push(v, FLAG,0);
-    vector_push(v, ADRESS_TRANSMITER,1);
-    vector_push(v, CONTROL_SET,2);
-    vector_push(v, (ADRESS_TRANSMITER ^ CONTROL_SET),3);
-    vector_push(v, FLAG,4);
-
     int bytes = write(fd, v->data, v->size);
     printf("%d bytes written\n", bytes);
 

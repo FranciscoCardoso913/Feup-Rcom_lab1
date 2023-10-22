@@ -44,7 +44,7 @@ int llopen(LinkLayer connectionParameters)
         if (alarmEnabled == FALSE && connectionParameters.role == LlTx)
         {
             
-            write_set(fd);
+            write_s_u_d(fd,CONTROL_SET);
             alarm(3);
             alarmEnabled = TRUE;
         }
@@ -111,7 +111,7 @@ int llopen(LinkLayer connectionParameters)
     }
     if (connectionParameters.role == LlRx)
     {
-       write_UA(fd);
+       write_s_u_d(fd,CONTROL_UA);
     }
     printf("Stoped \n");
 
@@ -205,12 +205,12 @@ int llclose(int showStatistics, LinkLayer connectionParameters)
         while(alarmCount<4){
 
             if (alarmEnabled == FALSE) {
-                write_disc(fd);
+                write_s_u_d(fd, CONTROL_DISC);
                 alarmEnabled = TRUE;
             }     
  
             if(read_disc(fd)){
-                write_UA(fd);
+                write_s_u_d(fd, CONTROL_UA);
                 printf("Closed successfuly\n");
                 return 0;
             }
@@ -223,7 +223,7 @@ int llclose(int showStatistics, LinkLayer connectionParameters)
         while(read_disc(fd));
         do {
             printf("write disc\n");
-            write_disc(fd);
+            write_s_u_d(fd,CONTROL_DISC);
         } while(read_UA(fd)) ;
         printf("Closed successfuly\n");
         return 0;

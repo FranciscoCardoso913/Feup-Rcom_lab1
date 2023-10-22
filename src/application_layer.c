@@ -82,7 +82,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         unsigned char buffer[MAX_PAYLOAD_SIZE];
         size_t bytes_to_Read=MAX_PAYLOAD_SIZE;
         
-        vector *v_open = write_control( 0x02, filename, fileLength);
+        long size = fileLength;
+        vector *v_open = write_control( 0x02, filename, size);
         llwrite(v_open->data, v_open->size,0);
 
         while(fileLength>0){
@@ -102,7 +103,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             }
         }
 
-        vector *v_close = write_control( 0x03, filename, fileLength);
+        vector *v_close = write_control( 0x03, filename, size);
         llwrite(v_close->data, v_close->size,0);
 
         printf("Finished\n");

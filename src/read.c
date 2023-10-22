@@ -47,7 +47,7 @@ int read_package(int fd, int information_frame,unsigned char * packet){
                 break;
             case C_RCV:
    
-                if (buf[0] == (ADRESS_TRANSMITER ^ information_frame))
+                if (buf[0] == (ADRESS_TRANSMITER ^ read_i))
                     state = BCC1_OK;
                 else if (buf[0] == FLAG)
                     state = FLAG_RCV;
