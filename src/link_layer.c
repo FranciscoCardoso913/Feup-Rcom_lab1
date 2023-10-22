@@ -19,7 +19,7 @@ int information_frame=I0;
 ////////////////////////////////////////////////
 int llopen(LinkLayer connectionParameters)
 {
-
+    alarmCount=0;
     (void)signal(SIGALRM, alarmHandler);
     if(alarmCount==0){
         fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY);
@@ -38,14 +38,14 @@ int llopen(LinkLayer connectionParameters)
     enum State state = START;
     
     
-    while (state != STOP_ && alarmCount < 4)
+    while (state != STOP_ && alarmCount < N_TRIES)
     {
 
         if (alarmEnabled == FALSE && connectionParameters.role == LlTx)
         {
             
             write_s_u_d(fd,CONTROL_SET);
-            alarm(3);
+            alarm(TIMEOUT);
             alarmEnabled = TRUE;
         }
         int control = 0;
@@ -109,6 +109,7 @@ int llopen(LinkLayer connectionParameters)
             break;
         }
     }
+    if(alarmCount>=N_TRIES) return 1;
     if (connectionParameters.role == LlRx)
     {
        write_s_u_d(fd,CONTROL_UA);
@@ -124,7 +125,7 @@ int llopen(LinkLayer connectionParameters)
 ////////////////////////////////////////////////
 // LLWRITE
 ////////////////////////////////////////////////
-int llwrite(const unsigned char *buf, int bufSize, int I)
+int llwrite(const unsigned char *buf, int bufSize)
 {
     if(bufSize<=0) return 1;
     printf("I : %X\n",information_frame);
@@ -132,10 +133,11 @@ int llwrite(const unsigned char *buf, int bufSize, int I)
     alarmCount = 0;
     
     int res=0;
-    while(alarmCount<4){
+    while(alarmCount<N_TRIES){
 
         if (alarmEnabled == FALSE || res==-1) {
             write_i_frame(fd, buf, bufSize, information_frame); 
+            alarm(TIMEOUT);
             alarmEnabled = TRUE;
         }    
         res  = read_s_u_frame(fd, information_frame);
@@ -169,8 +171,8 @@ int llread(unsigned char *packet)
     if(bcc2== packet[size ]){
         printf("Accepetd\n");
         if(size==-1){
-            if(information_frame==I0)write_rr(fd, I1);
-            else write_rr(fd, I0);
+            if(information_frame==I0)write_rr(fd, I0);
+            else write_rr(fd, I1);
             return -1;
         }else{
             write_rr(fd, information_frame);
@@ -202,14 +204,15 @@ int llclose(int showStatistics, LinkLayer connectionParameters)
         alarmEnabled = FALSE;
         alarmCount = 0;
 
-        while(alarmCount<4){
+        while(alarmCount<N_TRIES){
 
             if (alarmEnabled == FALSE) {
                 write_s_u_d(fd, CONTROL_DISC);
                 alarmEnabled = TRUE;
+                alarm(TIMEOUT);
             }     
  
-            if(read_disc(fd)){
+            if(!read_disc(fd)){
                 write_s_u_d(fd, CONTROL_UA);
                 printf("Closed successfuly\n");
                 return 0;
@@ -224,7 +227,7 @@ int llclose(int showStatistics, LinkLayer connectionParameters)
         do {
             printf("write disc\n");
             write_s_u_d(fd,CONTROL_DISC);
-        } while(read_UA(fd)) ;
+        } while(read_UA(fd) ) ;
         printf("Closed successfuly\n");
         return 0;
     

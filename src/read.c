@@ -82,7 +82,7 @@ int read_package(int fd, int information_frame,unsigned char * packet){
 }
 
 int read_s_u_frame(int fd,int information_frame){
-    alarm(3);
+    
     unsigned char res=0;
     enum State state = START;
     unsigned char buf[BUF_SIZE + 1] = {0};
@@ -160,7 +160,6 @@ int read_s_u_frame(int fd,int information_frame){
 }
 
 int read_disc(int fd){
-    alarm(3);
     alarmEnabled=TRUE;
     enum State state = START;
     unsigned char buf[BUF_SIZE + 1] = {0};

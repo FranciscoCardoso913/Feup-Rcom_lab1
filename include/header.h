@@ -25,6 +25,8 @@ enum State
     };
 
 #define BAUDRATE B38400
+#define N_TRIES 3
+#define TIMEOUT 4
 #define _POSIX_SOURCE 1
 
 #define TRANSMITTER 0

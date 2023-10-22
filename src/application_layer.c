@@ -16,8 +16,12 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     l.timeout=timeout;
     
     
-    while(llopen(l));
-    sleep(2);
+    if(llopen(l)){
+        printf("Time exeded!\n");
+        return ;
+    }
+    sleep(1);
+
     if(l.role==LlRx) {
         FILE *file = fopen(filename, "wb");
         if (file == NULL) {
@@ -30,7 +34,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         unsigned char packet[MAX_PAYLOAD_SIZE+5];
         do{
             llread(packet);
-        }while(packet[0]!= 0x02);
+        }while(packet[0]!= C_START);
         if(packet[1]==0x00){
             t=0;
             unsigned char n_bytes = packet[2];
@@ -42,7 +46,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
         }
         int size=-1;
-        while(packet[0]!=0x03){
+        while(packet[0]!=C_END){
             while(size==-1){
                 size = llread(packet);
                 printf("%d\n ", size);
@@ -83,8 +87,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         size_t bytes_to_Read=MAX_PAYLOAD_SIZE;
         
         long size = fileLength;
-        vector *v_open = write_control( 0x02, filename, size);
-        llwrite(v_open->data, v_open->size,0);
+        vector *v_open = write_control( C_START, filename, size);
+        if(llwrite(v_open->data, v_open->size)){
+            printf("Time exeded\n");
+            return ;
+        }
 
         while(fileLength>0){
             printf("Writting again\n");
@@ -97,20 +104,21 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             fileLength -= bytesRead;
             vector * v = write_data(buffer,bytesRead);
             printf("BytesREad: %d \n", bytesRead);
-            if(llwrite(v->data, v->size,0)){
+            if(llwrite(v->data, v->size)){
                 printf("timed exeded\n");
                 return ;
             }
         }
 
-        vector *v_close = write_control( 0x03, filename, size);
-        llwrite(v_close->data, v_close->size,0);
+        vector *v_close = write_control( C_END, filename, size);
+        llwrite(v_close->data, v_close->size);
 
         printf("Finished\n");
         
         fclose(file);
 
     }
-  
+    sleep(1);
+    printf("awake\n");
     llclose(0, l);
 }
