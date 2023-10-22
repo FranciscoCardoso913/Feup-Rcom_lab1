@@ -114,7 +114,6 @@ int llopen(LinkLayer connectionParameters)
     {
        write_s_u_d(fd,CONTROL_UA);
     }
-    printf("Stoped \n");
 
     // Wait until all bytes have been written to the serial port
     sleep(1);
@@ -128,7 +127,6 @@ int llopen(LinkLayer connectionParameters)
 int llwrite(const unsigned char *buf, int bufSize)
 {
     if(bufSize<=0) return 1;
-    printf("I : %X\n",information_frame);
     alarmEnabled = FALSE;
     alarmCount = 0;
     
@@ -142,7 +140,6 @@ int llwrite(const unsigned char *buf, int bufSize)
         }    
         res  = read_s_u_frame(fd, information_frame);
         if(res==0){
-            printf("Accepetd\n");
             if(information_frame==I0) information_frame=I1;
             else information_frame=I0;
             return 0;
@@ -160,17 +157,15 @@ int llwrite(const unsigned char *buf, int bufSize)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
-    printf("I : %X\n",information_frame);
     int size= read_package(fd, information_frame,packet);
     unsigned char bcc2=0;
     size= size-1;
     for(int i=0; i<size;i++){
         bcc2 ^= packet[i];
     }
-    printf("Size %d \n", size);
     if(bcc2== packet[size ]){
-        printf("Accepetd\n");
         if(size==-1){
+            printf("Repeted information! Recending response!\n");
             if(information_frame==I0)write_rr(fd, I0);
             else write_rr(fd, I1);
             return -1;
@@ -181,12 +176,6 @@ int llread(unsigned char *packet)
             return size;
         }
     }else{
-         printf("packet %X\n", packet[size+1]);
-         printf("packet %X\n", packet[size]);
-         printf("packet %X\n", bcc2);
-
-        sleep(3);
-        
         printf("Rejected\n");
         write_rej(fd, information_frame);
         return -1;
@@ -225,13 +214,13 @@ int llclose(int showStatistics, LinkLayer connectionParameters)
 
         while(read_disc(fd));
         do {
-            printf("write disc\n");
             write_s_u_d(fd,CONTROL_DISC);
         } while(read_UA(fd) ) ;
         printf("Closed successfuly\n");
         return 0;
     
     }
+
 
 
     return 1;

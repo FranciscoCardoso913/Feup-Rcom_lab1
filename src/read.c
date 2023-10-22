@@ -57,7 +57,6 @@ int read_package(int fd, int information_frame,unsigned char * packet){
             case BCC1_OK:
     
                 if (buf[0] == FLAG){
-                    printf("Stoped\n");
                     state=STOP_;
                     break;
                 }
@@ -76,7 +75,6 @@ int read_package(int fd, int information_frame,unsigned char * packet){
     }
     }
 
-    printf("STOPED\n");
     if(information_frame!=read_i) return -1;
     return size;
 }

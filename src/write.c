@@ -16,7 +16,7 @@ int write_rej(int fd,unsigned char information_frame){
     vector_push(v, FLAG,4);
 
     int bytes = write(fd, v->data, v->size);
-    printf("%d bytes written\n", bytes);
+    printf("Writting REJ! %d bytes written\n", bytes);
 
     return 1;
        
@@ -38,7 +38,7 @@ int write_rr(int fd, unsigned char information_frame){
     vector_push(v, FLAG,4);
 
     int bytes = write(fd, v->data, v->size);
-    printf("%d bytes written\n", bytes);
+    printf("Writting RR! %d bytes written\n", bytes);
 
     return 1;
 
@@ -148,7 +148,7 @@ vector* write_data(unsigned char *buf, int bufSize) {
 
     unsigned char l2 = bufSize/ 256;
     unsigned char l1 = bufSize % 256;
-    vector_push(v,C_DATA,0x00);
+    vector_push(v,C_DATA,0);
     vector_push(v,l2,1);
     vector_push(v,l1,2);
     for(int i=0; i< bufSize ; i++){
