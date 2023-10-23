@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
     const char *serialPort = argv[1];
-    printf("%s\n",serialPort);
+    printf("%s\n", serialPort);
     const char *role = argv[2];
     const char *filename = argv[3];
     printf("Starting link-layer protocol application\n"

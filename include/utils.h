@@ -10,4 +10,4 @@ int llconfig(int fd);
 // Math function for power using integers
 long pow_int(int x, int y);
 
-#endif 
+#endif

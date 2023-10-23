@@ -14,23 +14,23 @@
 #include <time.h>
 
 enum State
-    {
-        START = 0,
-        FLAG_RCV,
-        A_RCV,
-        C_RCV,
-        BCC1_OK,
-        D,
-        BCC2_OK,
-        STOP_
-    };
+{
+    START = 0,
+    FLAG_RCV,
+    A_RCV,
+    C_RCV,
+    BCC1_OK,
+    D,
+    BCC2_OK,
+    STOP_
+};
 
 #define BAUDRATE B38400
 
-//Number of tries before exiting the prigram
+// Number of tries before exiting the prigram
 #define N_TRIES 3
 
-//Time to wait until alarm signals
+// Time to wait until alarm signals
 #define TIMEOUT 4
 
 // 1 to show statistics at the end of the program 0 otherwise
@@ -42,7 +42,6 @@ enum State
 #define FALSE 0
 #define TRUE 1
 #define BUF_SIZE 256
-
 
 #define FLAG (0x7E)
 #define ESCAPE (0x7D)
@@ -69,4 +68,4 @@ enum State
 #define T_SIZE (0x00)
 #define T_NAME (0x01)
 
-#endif 
+#endif
