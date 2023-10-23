@@ -118,7 +118,6 @@ int write_i_frame(int fd, const unsigned char *buf, int bufSize, unsigned char i
 
 vector *write_control(unsigned char control, const char *filename, long filesize)
 {
-
     vector v2;
     vector *v = &v2;
     vector_init(v);
@@ -126,13 +125,18 @@ vector *write_control(unsigned char control, const char *filename, long filesize
     // Push the C related to the control (START or END)
     vector_push(v, control, 0);
 
-    unsigned char size = sizeof(filesize);
-
+    unsigned char size = 0;
+    long aux = filesize;
+    while(aux>0){
+        aux/=256;
+        size++;
+    }
+    //size++;
     // Push the T related to the filesize
     vector_push(v, T_SIZE, 1);
 
     // Push the size(V) of the filesize
-    vector_push(v, size, 2);
+    vector_push(v, size , 2);
 
     // getting the last two bytes of the filesize, and pushing them always after the size
     while (size > 0)
@@ -152,10 +156,10 @@ vector *write_control(unsigned char control, const char *filename, long filesize
 
         // Push the size(V) of the filename
         vector_push(v, strlen(filename), v->size);
-
         // Push the filename
         for (int i = 0; i < strlen(filename); i++)
         {
+
             vector_push(v, filename[i], v->size);
         }
     }

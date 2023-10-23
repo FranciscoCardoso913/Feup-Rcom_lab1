@@ -44,16 +44,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     {
 
         // Creating file to write. If it already exists, it will be overwritten.
-        FILE *file = fopen(filename, "wb");
-        if (file == NULL)
-        {
-            printf("Error: Unable to create or open the file %s for writing.\n", filename);
-            return;
-        }
+        
 
         long bytes_to_read = 0;
         unsigned char packet[MAX_PAYLOAD_SIZE + 5];
-
+        int c = 0;
         // Read until the first start control packet is received
         do
         {
@@ -63,7 +58,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         {
             bytes_to_read = 0;
             unsigned char n_bytes = packet[2];
-            int c = 0;
+            
             for (int i = n_bytes; i > 0; i--)
             {
                 bytes_to_read += pow_int(256, i - 1) * (int)packet[c + 3];
@@ -75,6 +70,27 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         {
             printf("Error in the start control packet\n");
             exit(1);
+        }
+        int lenght = packet[c+4];
+        char name[lenght+1];
+        if(packet[c+3] ==0x01){
+            
+            for(int i = 0; i< lenght; i++){
+                name[i]= packet[c+5+i];
+            }
+            name[lenght]='\0';
+        }
+        else{
+            printf("Name not sent\n");
+            exit(1);
+        }
+        FILE *file;
+        if(FILENAME) file = fopen(filename, "wb");
+        else file = fopen(name, "wb");
+        if (file == NULL)
+        {
+            printf("Error: Unable to create or open the file %s for writing.\n", filename);
+            return;
         }
 
         // Read until the end control packet is received

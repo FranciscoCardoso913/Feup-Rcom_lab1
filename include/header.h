@@ -27,11 +27,14 @@ enum State
 
 #define BAUDRATE B38400
 
-// Number of tries before exiting the prigram
+// Number of tries before exiting the program
 #define N_TRIES 3
 
 // Time to wait until alarm signals
 #define TIMEOUT 4
+
+// 1 to use filename given by receiver 0 to use original name
+#define FILENAME 1
 
 // 1 to show statistics at the end of the program 0 otherwise
 #define SHOW_STATISTICS 1
