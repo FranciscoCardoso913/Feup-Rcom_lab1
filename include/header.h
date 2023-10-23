@@ -11,6 +11,7 @@
 #include <signal.h>
 #include "read.h"
 #include "write.h"
+#include <time.h>
 
 enum State
     {
@@ -25,8 +26,15 @@ enum State
     };
 
 #define BAUDRATE B38400
+
+//Number of tries before exiting the prigram
 #define N_TRIES 3
+
+//Time to wait until alarm signals
 #define TIMEOUT 4
+
+// 1 to show statistics at the end of the program 0 otherwise
+#define SHOW_STATISTICS 1
 #define _POSIX_SOURCE 1
 
 #define TRANSMITTER 0

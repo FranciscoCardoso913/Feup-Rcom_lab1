@@ -7,6 +7,8 @@
 
 void vector_init(vector *v) {
 
+    // initialize size and data
+
     v->data = NULL;
     v->size = 0;
 
@@ -43,7 +45,9 @@ void vector_set(vector *v, unsigned char c,int idx) {
 
 void vector_set_size(vector *v, int size) {
 
+    // Adjusting the size of the vector
     unsigned char *tmp = (unsigned char*) realloc(v->data, size);
+    
     if (tmp) {
         v->data = tmp;
         v->size = size;
@@ -72,6 +76,7 @@ void vector_push(vector *v, unsigned char c, int idx) {
         return;
     }
 
+    // Shift all elements after idx to the right
     for(int i = v->size - 1; i > idx; i--) {
         v->data[i] = v->data[i-1];
     }
@@ -83,15 +88,18 @@ void vector_stuff(vector *v) {
 
     int i = 4; //packet size
 
+    // Going through the packet
     while ( i < v->size  ) {
 
         unsigned char c = v->data[i];
 
+        // To stuff the flah we need to add 0x7d and 0x5e
         if (c == FLAG){
             v->data[i] = 0x7d;
             vector_push(v, 0x5e, i+1);
             i++;
         }
+        // To stuff the escape we need to add 0x7d and 0x5d
         else if(c == ESCAPE){
             v->data[i] = 0x7d;
             vector_push(v, 0x5d, i+1);
@@ -111,6 +119,7 @@ void vector_remove(vector *v, int idx) {
         return ;
     }
 
+    // Shift all elements after idx to the left
     for(int i = idx; i < v->size - 1; i++) {
         v->data[i] = v->data[i+1];
     }

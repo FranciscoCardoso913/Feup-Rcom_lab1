@@ -2,11 +2,12 @@
 #include "utils.h"
 int alarmEnabled = FALSE;
 int alarmCount = 0;
+extern int totalAlarmsCount;
 void alarmHandler(int signal)
 {
     alarmEnabled = FALSE;
     alarmCount++;
-    
+    totalAlarmsCount++;
     printf("Alarm #%d\n", alarmCount);
 }
 
